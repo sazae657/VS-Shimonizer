@@ -11,14 +11,19 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:extension.Shimonize"
+		"onCommand:extension.Shimonize",
+        "onCommand:extension.Pascalize"
 	],
 	"main": "./out/src/extension",
 	"contributes": {
 		"commands": [{
 			"command": "extension.Shimonize",
 			"title": "Shimonize"
-		}]
+		},
+        {   "command": "extension.Pascalize",
+			"title": "Pascalize"
+		}
+        ]
 	},
 	"scripts": {
 		"vscode:prepublish": "node ./node_modules/vscode/bin/compile",

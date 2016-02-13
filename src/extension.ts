@@ -20,6 +20,18 @@ export function activate(context: vscode.ExtensionContext) {
                 });
 
     context.subscriptions.push(ｼﾓﾅｲｽﾞｴﾃﾞｨﾀー);
+    var pascalize = vscode.commands.registerTextEditorCommand(
+                'extension.Pascalize',
+                (ｴﾃﾞｨﾀー, ｴﾃﾞｨｯﾄ) =>
+                {
+                    if(ｴﾃﾞｨﾀー.selection.isEmpty) {
+                        vscode.window.showInformationMessage("（ ◜◡◝ ）");
+                        return;
+                    }
+                    var ｼﾓﾅｲｽﾞﾃｷｽﾄ = ｴﾃﾞｨﾀー.document.getText(ｴﾃﾞｨﾀー.selection);
+                    ｴﾃﾞｨｯﾄ.replace(ｴﾃﾞｨﾀー.selection, ﾅｲｻﾞー.ﾊﾟｽｶﾗｲｽﾞ(ｼﾓﾅｲｽﾞﾃｷｽﾄ));
+                });    
+    context.subscriptions.push(pascalize);                
 }
 
 export function deactivate() {
@@ -58,5 +70,23 @@ class ｼﾓﾅｲｻﾞー {
         }
         return ｼﾓﾅｲｽﾞﾃｷｽﾄ;
     }
+    
+    ﾊﾟｽｶﾗｲｽﾞ(ｼﾓﾅｲｽﾞﾃｷｽﾄ: string): string {
+        var ﾊﾟｽｶﾗｲｽﾞﾃｷｽﾄ = "";
+        var 大文字 = true;
+        for (var i = 0; i < ｼﾓﾅｲｽﾞﾃｷｽﾄ.length; i++) {
+            if ('_' == ｼﾓﾅｲｽﾞﾃｷｽﾄ[i]) {
+                大文字 = true;
+                continue;
+            }
+            if (true == 大文字) {
+                ﾊﾟｽｶﾗｲｽﾞﾃｷｽﾄ += ｼﾓﾅｲｽﾞﾃｷｽﾄ[i].toUpperCase();
+                大文字 = false;
+                continue;
+            }
+            ﾊﾟｽｶﾗｲｽﾞﾃｷｽﾄ += ｼﾓﾅｲｽﾞﾃｷｽﾄ[i].toLowerCase();
+        }
+        return ﾊﾟｽｶﾗｲｽﾞﾃｷｽﾄ;
+    }    
 }
 
