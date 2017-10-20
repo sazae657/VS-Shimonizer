@@ -3,35 +3,115 @@ import * as vscode from 'vscode';
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with  registerCommand
-	// The commandId parameter must match the command field in package.json
+    let previewUri = vscode.Uri.parse('struct-preview://authority/struct-preview');
     var ﾅｲｻﾞー = new ｼﾓﾅｲｻﾞー();
+    class TextDocumentContentProvider implements vscode.TextDocumentContentProvider {
+
+        private _onDidChange = new vscode.EventEmitter<vscode.Uri>();
+
+        public provideTextDocumentContent(uri: vscode.Uri): string {
+            return this.createStructSnippet();
+        }
+
+        get onDidChange(): vscode.Event<vscode.Uri> {
+            return this._onDidChange.event;
+        }
+
+        public update(uri: vscode.Uri) {
+            this._onDidChange.fire(uri);
+        }
+
+        private createStructSnippet() {
+            let editor = vscode.window.activeTextEditor;
+            if (!editor) {
+                return this.errorSnippet("開いてるｴｼﾞﾀがないよう");
+            }            
+            return this.extractSnippet();
+        }
+
+        private extractSnippet(): string {
+            let editor = vscode.window.activeTextEditor;
+            let text = editor.document.getText();
+            let selStart = editor.document.offsetAt(editor.selection.anchor);
+            return this.snippet(editor.document, selStart, text.length);
+        }
+
+        private errorSnippet(error: string): string {
+            return `<body>${error}</body>`;
+        }
+
+        private snippet(document: vscode.TextDocument, propStart: number, propEnd: number): string {
+            const properties = document.getText().slice(propStart, propEnd);
+            let text = "";
+            for (const s of properties.split(/\n/)) {
+                const part = s.trim().split(/[\s\t]+/);
+                if (part.length == 0) {
+                    break;
+                }
+                if (part.length == 1) {
+                    text += s + "\n";
+                    break;
+                }
+                let i = 0;
+                for (i = 0; i < part.length-1; i++) {
+                    text += part[i] + " ";
+                }
+                text += ﾅｲｻﾞー.ﾊﾟｽｶﾗｲｽﾞ(part[i]) + "\n";
+            }
+
+            return `
+                <body>
+                    <div>でぶ</div>
+                    <hr>
+                    <pre>${text}</pre>
+                </body>`;
+        }
+    }
+    let provider = new TextDocumentContentProvider();
+    let registration = vscode.workspace.registerTextDocumentContentProvider('struct-preview', provider);
+    vscode.workspace.onDidChangeTextDocument((e: vscode.TextDocumentChangeEvent) => {
+        if (e.document === vscode.window.activeTextEditor.document) {
+            provider.update(previewUri);
+        }
+    });
+    vscode.window.onDidChangeTextEditorSelection((e: vscode.TextEditorSelectionChangeEvent) => {
+        if (e.textEditor === vscode.window.activeTextEditor) {
+            provider.update(previewUri);
+        }
+    });
+    let disposable = vscode.commands.registerCommand('extension.Struct', () => {
+        return vscode.commands.executeCommand('vscode.previewHtml', 
+            previewUri, vscode.ViewColumn.Two, 'かうぞうたい').then((success) => {
+        }, (reason) => {
+            vscode.window.showErrorMessage(reason);
+        });
+    });
+    context.subscriptions.push(disposable, registration);
+
     var ｼﾓﾅｲｽﾞｴﾃﾞｨﾀー = vscode.commands.registerTextEditorCommand(
-                'extension.Shimonize',
-                (ｴﾃﾞｨﾀー, ｴﾃﾞｨｯﾄ) =>
-                {
-                    if(ｴﾃﾞｨﾀー.selection.isEmpty) {
-                        vscode.window.showInformationMessage("（ ◜◡◝ ）");
-                        return;
-                    }
-                    var ｼﾓﾅｲｽﾞﾃｷｽﾄ = ｴﾃﾞｨﾀー.document.getText(ｴﾃﾞｨﾀー.selection);
-                    ｴﾃﾞｨｯﾄ.replace(ｴﾃﾞｨﾀー.selection, ﾅｲｻﾞー.ｼﾓﾅｲｽﾞ(ｼﾓﾅｲｽﾞﾃｷｽﾄ));
-                });
+        'extension.Shimonize',
+        (ｴﾃﾞｨﾀー, ｴﾃﾞｨｯﾄ) => {
+            if (ｴﾃﾞｨﾀー.selection.isEmpty) {
+                vscode.window.showInformationMessage("（ ◜◡◝ ）");
+                return;
+            }
+            var ｼﾓﾅｲｽﾞﾃｷｽﾄ = ｴﾃﾞｨﾀー.document.getText(ｴﾃﾞｨﾀー.selection);
+            ｴﾃﾞｨｯﾄ.replace(ｴﾃﾞｨﾀー.selection, ﾅｲｻﾞー.ｼﾓﾅｲｽﾞ(ｼﾓﾅｲｽﾞﾃｷｽﾄ));
+        });
 
     context.subscriptions.push(ｼﾓﾅｲｽﾞｴﾃﾞｨﾀー);
     var pascalize = vscode.commands.registerTextEditorCommand(
-                'extension.Pascalize',
-                (ｴﾃﾞｨﾀー, ｴﾃﾞｨｯﾄ) =>
-                {
-                    if(ｴﾃﾞｨﾀー.selection.isEmpty) {
-                        vscode.window.showInformationMessage("（ ◜◡◝ ）");
-                        return;
-                    }
-                    var ｼﾓﾅｲｽﾞﾃｷｽﾄ = ｴﾃﾞｨﾀー.document.getText(ｴﾃﾞｨﾀー.selection);
-                    ｴﾃﾞｨｯﾄ.replace(ｴﾃﾞｨﾀー.selection, ﾅｲｻﾞー.ﾊﾟｽｶﾗｲｽﾞ(ｼﾓﾅｲｽﾞﾃｷｽﾄ));
-                });    
-    context.subscriptions.push(pascalize);                
+        'extension.Pascalize',
+        (ｴﾃﾞｨﾀー, ｴﾃﾞｨｯﾄ) => {
+            if (ｴﾃﾞｨﾀー.selection.isEmpty) {
+                vscode.window.showInformationMessage("（ ◜◡◝ ）");
+                return;
+            }
+            var ｼﾓﾅｲｽﾞﾃｷｽﾄ = ｴﾃﾞｨﾀー.document.getText(ｴﾃﾞｨﾀー.selection);
+            ｴﾃﾞｨｯﾄ.replace(ｴﾃﾞｨﾀー.selection, ﾅｲｻﾞー.ﾊﾟｽｶﾗｲｽﾞ(ｼﾓﾅｲｽﾞﾃｷｽﾄ));
+        });
+    context.subscriptions.push(pascalize);
+
 }
 
 export function deactivate() {
@@ -62,15 +142,15 @@ class ｼﾓﾅｲｻﾞー {
 
     ｼﾓﾅｲｽﾞ(ｼﾓﾅｲｽﾞﾃｷｽﾄ: string): string {
         for (var ｼ in this.ｼﾓﾅｲｽﾞﾃーﾌﾞﾙ) {
-            if(ｼﾓﾅｲｽﾞﾃｷｽﾄ.indexOf(ｼ) >=0) {
-               do{
+            if (ｼﾓﾅｲｽﾞﾃｷｽﾄ.indexOf(ｼ) >= 0) {
+                do {
                     ｼﾓﾅｲｽﾞﾃｷｽﾄ = ｼﾓﾅｲｽﾞﾃｷｽﾄ.replace(ｼ, this.ｼﾓﾅｲｽﾞﾃーﾌﾞﾙ[ｼ]);
-               }while(ｼﾓﾅｲｽﾞﾃｷｽﾄ.indexOf(ｼ) >= 0);
+                } while (ｼﾓﾅｲｽﾞﾃｷｽﾄ.indexOf(ｼ) >= 0);
             }
         }
         return ｼﾓﾅｲｽﾞﾃｷｽﾄ;
     }
-    
+
     ﾊﾟｽｶﾗｲｽﾞ(ｼﾓﾅｲｽﾞﾃｷｽﾄ: string): string {
         var ﾊﾟｽｶﾗｲｽﾞﾃｷｽﾄ = "";
         var 大文字 = true;
@@ -87,6 +167,6 @@ class ｼﾓﾅｲｻﾞー {
             ﾊﾟｽｶﾗｲｽﾞﾃｷｽﾄ += ｼﾓﾅｲｽﾞﾃｷｽﾄ[i].toLowerCase();
         }
         return ﾊﾟｽｶﾗｲｽﾞﾃｷｽﾄ;
-    }    
+    }
 }
 
