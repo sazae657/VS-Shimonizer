@@ -43,6 +43,7 @@ export function activate(context: vscode.ExtensionContext) {
         private snippet(document: vscode.TextDocument, propStart: number, propEnd: number): string {
             const properties = document.getText().slice(propStart, propEnd);
             let text = "";
+            let props = "";
             for (const s of properties.split(/\n/)) {
                 const part = s.trim().split(/[\s\t]+/);
                 if (part.length == 0) {
@@ -56,7 +57,20 @@ export function activate(context: vscode.ExtensionContext) {
                 for (i = 0; i < part.length-1; i++) {
                     text += part[i] + " ";
                 }
-                text += ﾅｲｻﾞー.ﾊﾟｽｶﾗｲｽﾞ(part[i]) + "\n";
+                let uriz = part[i];
+                let em = 0;
+                if ((em = uriz.indexOf(';')) > 0) {
+                    uriz = uriz.substr(0, em);
+                }
+                
+                let umz = part[i];
+                if ((em = umz.indexOf(';')) > 0) {
+                    umz = umz.substr(0, em);
+                }                
+                const pcz = ﾅｲｻﾞー.ﾊﾟｽｶﾗｲｽﾞ(umz);
+                text += ﾅｲｻﾞー.ﾊﾟｽｶﾗｲｽﾞ(umz) + "\n";
+
+                props += `public ${part[i-1]} ${pcz} {\n    get => Record.${uriz};\n    set => Record.${uriz} = value;\n}\n`;
             }
 
             return `
@@ -64,6 +78,8 @@ export function activate(context: vscode.ExtensionContext) {
                     <div>でぶ</div>
                     <hr>
                     <pre>${text}</pre>
+                    <hr>
+                    <pre>${props}</pre>
                 </body>`;
         }
     }
